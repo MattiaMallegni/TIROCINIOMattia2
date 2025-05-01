@@ -1,0 +1,81 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Website:  www.openfoam.org                      |
+|   \\  /    A nd           | Version:  12                                    |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Simulazione a FASE UNICA con dt fisso
+
+application     pimpleFoam; // o foamRun -solver incompressibleFluid
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         210;        // Tempo finale simulazione
+
+// --- IMPOSTAZIONI PASSO FISSO ---
+adjustTimeStep  no;         
+deltaT          0.001;     // <-- PROVA INIZIALE (monitorare maxCo e aggiustare se necessario)
+
+// --- IMPOSTAZIONI SCRITTURA ---
+writeControl    adjustableRunTime;
+writeInterval   0.3;        // Scrive ogni 0.3 secondi (multiplo di 0.001)
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  6;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;         
+
+runTimeModifiable true;
+
+// maxCo e maxDeltaT non sono usati con adjustTimeStep no
+
+functions
+{
+    // Funzione per calcolare i coefficienti di forza
+    forceCoeffs_object
+    {
+        type            forceCoeffs;
+        libs            ("libforces.so");
+        writeControl    timeStep;
+        writeInterval   200; // Scrive ogni 200 * 0.0015 = 0.3 secondi
+        patches         (bodyWall actuatorSlots);
+        rho             rhoInf; rhoInf 1.0;
+        liftDir         (0 1 0); dragDir (1 0 0); pitchAxis (0 0 1);
+        CofR            (0.5 0 0.05);
+        magUInf         1.0; lRef 1.0; Aref 0.1;
+        writeForces     true;
+    }
+
+    // Funzione per calcolare y+
+    yPlus_object
+    {
+        type            yPlus;
+        libs            ("libfieldFunctionObjects.so");
+        patches         (bodyWall actuatorSlots);
+        log             true;       // Stampa min/max/avg nel log
+        executeControl  outputTime; // Calcola quando scrivi i risultati
+        writeControl    outputTime; // Scrive quando scrivi i risultati (ogni 0.3s)
+    }
+
+    // Funzione per calcolare e scrivere il campo Co e loggare min/max/avg Co
+    CourantNumberField
+    {
+        type            CourantNo;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    outputTime; // Scrive il campo Co ogni 0.3s
+        log             true;       // <-- ATTIVATO: Stampa min/max/avg Co nel log
+    }
+}
+// ************************************************************************* //
