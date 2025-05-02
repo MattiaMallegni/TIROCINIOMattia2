@@ -44,7 +44,7 @@ runTimeModifiable true;
 functions
 {
     // Funzione per calcolare i coefficienti di forza
-    forceCoeffs_object
+    forceCoeffs1
     {
         type            forceCoeffs;
         libs            ("libforces.so");
@@ -59,7 +59,7 @@ functions
     }
 
     // Funzione per calcolare y+
-    yPlus_object
+    yPlus1
     {
         type            yPlus;
         libs            ("libfieldFunctionObjects.so");
