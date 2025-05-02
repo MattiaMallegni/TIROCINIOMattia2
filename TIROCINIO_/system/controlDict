@@ -49,7 +49,7 @@ functions
         type            forceCoeffs;
         libs            ("libforces.so");
         writeControl    timeStep;
-        writeInterval   200; // Scrive ogni 200 * 0.0015 = 0.3 secondi
+        writeInterval   300; // Scrive ogni 300 * 0.001 = 0.3 secondi
         patches         (bodyWall actuatorSlots);
         rho             rhoInf; rhoInf 1.0;
         liftDir         (0 1 0); dragDir (1 0 0); pitchAxis (0 0 1);
