@@ -41,17 +41,15 @@ boundaryField
     {
         type            symmetry;
     }
-    bodyWall
+    bodyWall // <<<--- MODIFICATO ---<<<
     {
-        
-        type            nutkWallFunction;
-        value           $internalField;
-        // Alternativa (meno robusta?): type fixedValue; value uniform 0;
+        type            fixedValue; // Adatto per LES wall-resolved (nut=0 al muro)
+        value           uniform 0;  // Imposta nut = 0
     }
-    actuatorSlots
+    actuatorSlots // <<<--- MODIFICATO ---<<<
     {
-        type            nutkWallFunction;
-        value           $internalField;
+        type            fixedValue; // Adatto per LES wall-resolved (nut=0 al muro)
+        value           uniform 0;  // Imposta nut = 0
     }
     frontAndBack
     {
