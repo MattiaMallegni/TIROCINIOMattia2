@@ -54,7 +54,7 @@ functions
         rho             rhoInf; rhoInf 1.0;
         liftDir         (0 1 0); dragDir (1 0 0); pitchAxis (0 0 1);
         CofR            (0.5 0 0.05);
-        magUInf         0.5; lRef 1.0; Aref 0.1;
+        magUInf         0.4; lRef 1.0; Aref 0.1;
         writeForces     true;
     }
 
