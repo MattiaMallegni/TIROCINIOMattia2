@@ -21,15 +21,15 @@ application     pimpleFoam; // o foamRun -solver incompressibleFluid
 startFrom       startTime;
 startTime       0;
 stopAt          endTime;
-endTime         210;        // Tempo finale simulazione
+endTime         210;         // Tempo finale simulazione
 
 // --- IMPOSTAZIONI PASSO FISSO ---
 adjustTimeStep  no;         
-deltaT          0.001;     // <-- PROVA INIZIALE (monitorare maxCo e aggiustare se necessario)
+deltaT          0.0005;     
 
 // --- IMPOSTAZIONI SCRITTURA ---
 writeControl    adjustableRunTime;
-writeInterval   0.3;        // Scrive ogni 0.3 secondi (multiplo di 0.001)
+writeInterval   0.3;         // Scrive ogni 0.3 secondi 
 purgeWrite      0;
 writeFormat     ascii;
 writePrecision  6;
@@ -38,6 +38,10 @@ timeFormat      general;
 timePrecision   6;         
 
 runTimeModifiable true;
+
+// purgeWrite è duplicato, ne basta uno
+// purgeWrite      0;
+// writeFormat     ascii; // Duplicato
 
 // maxCo e maxDeltaT non sono usati con adjustTimeStep no
 
@@ -48,14 +52,18 @@ functions
     {
         type            forceCoeffs;
         libs            ("libforces.so");
-        writeControl    timeStep;
-        writeInterval   300; // Scrive ogni 300 * 0.001 = 0.3 secondi
-        patches         (bodyWall actuatorSlots);
-        rho             rhoInf; rhoInf 1.0;
-        liftDir         (0 1 0); dragDir (1 0 0); pitchAxis (0 0 1);
-        CofR            (0.5 0 0.05);
-        magUInf         0.4; lRef 1.0; Aref 0.1;
-        writeForces     true;
+        writeControl    timeStep; // Scrive ad ogni time step
+        writeInterval   1;        // Intervallo (ogni quanto salvare se writeControl fosse timeStep)
+        patches         (bodyWall actuatorSlots); // Patch su cui calcolare le forze
+        rho             rhoInf; rhoInf 1.0;      // Densità di riferimento
+        liftDir         (0 1 0);                // Direzione Lift (Y)
+        dragDir         (1 0 0);                // Direzione Drag (X)
+        pitchAxis       (0 0 1);                // Asse per momento (Z)
+        CofR            (0.5 0 0.05);           // Centro di rotazione per momento
+        magUInf         0.4;                    // Velocità di riferimento
+        lRef            1.0;                    // Lunghezza di riferimento (D)
+        Aref            0.1;                    // Area di riferimento (D*Z_thickness)
+        writeForces     true;                   // Salva forze dettagliate
     }
 
     // Funzione per calcolare y+
@@ -63,10 +71,10 @@ functions
     {
         type            yPlus;
         libs            ("libfieldFunctionObjects.so");
-        patches         (bodyWall actuatorSlots);
-        log             true;       // Stampa min/max/avg nel log
-        executeControl  outputTime; // Calcola quando scrivi i risultati
-        writeControl    outputTime; // Scrive quando scrivi i risultati (ogni 0.3s)
+        patches         (bodyWall actuatorSlots); // Patch su cui calcolare y+
+        log             true;                   // Stampa min/max/avg nel log
+        executeControl  outputTime;             // Calcola quando scrivi i risultati principali
+        writeControl    outputTime;             // Scrive il campo yPlus quando scrivi i risultati principali
     }
 
     // Funzione per calcolare e scrivere il campo Co e loggare min/max/avg Co
@@ -74,8 +82,44 @@ functions
     {
         type            CourantNo;
         libs            ("libfieldFunctionObjects.so");
-        writeControl    outputTime; // Scrive il campo Co ogni 0.3s
-        log             true;       // <-- ATTIVATO: Stampa min/max/avg Co nel log
+        writeControl    outputTime;             // Scrive il campo Co quando scrivi i risultati principali
+        log             true;                   // Stampa min/max/avg Co nel log
     }
+    
+    // Funzione per calcolare le medie temporali
+    fieldAverage1 
+    {
+        type            fieldAverage; 
+        libs            ("libfieldFunctionObjects.so"); 
+
+        // --- Controllo Avvio/Fine Media ---
+        startAverage    true;       // Abilita l'inizio ritardato
+        startTime       100;        // Tempo di inizio media
+
+        // --- Campi da Mediare ---
+        fields
+        (
+            U           // Campo di velocità istantaneo
+            {
+                mean        on;     // Calcola e salva UMean 
+                prime2      on;     // Calcola e salva UPrime2Mean 
+                base        time;   // Media temporale standard
+            }
+            p           // Campo di pressione istantaneo
+            {
+                mean        on;     // Calcola e salva pMean
+                prime2      off;    // Non calcolare <p'^2> 
+                base        time;
+            }
+        );
+
+        // --- Controllo Scrittura Campi Mediati ---
+        // L'ultima impostazione provata che era sintatticamente valida
+        writeControl    outputTime; 
+        // writeInterval   1; // Ignorato/Commentato perchè writeControl è outputTime
+    }
+
+   
+    
 }
 // ************************************************************************* //
