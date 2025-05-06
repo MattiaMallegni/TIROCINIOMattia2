@@ -1,4 +1,4 @@
-Simulazione LES Re=40000: U=0.4 m/s, ni=1e-5 m²/s, D=1 m, deltaT=0.001s, durata=210s
+Simulazione LES Re=40000: U=0.4 m/s, ni=1e-5 m²/s, D=1 m, deltaT=0.0005s, durata=210s
 
 NB: Prima di lanciare la simulazione occorre cambiare il parametro numberOfSubdomains nel file system/decomposeParDict e il parametro numberOfProcessors nel file run.sh, inserendo il numero di core del proprio Pc.
 
