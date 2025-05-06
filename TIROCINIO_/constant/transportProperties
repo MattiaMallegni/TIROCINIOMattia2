@@ -17,7 +17,7 @@ FoamFile
 
 transportModel Newtonian;
 
-nu              [0 2 -1 0 0 0 0] 1e-05; // Impostato per Re=40000 con U=0.5 m/s, D=1 m
+nu              [0 2 -1 0 0 0 0] 1e-05; // Impostato per Re=40000 con U=0.4 m/s, D=1 m
 
 
 // ************************************************************************* //
