@@ -113,10 +113,9 @@ functions
             }
         );
 
-        // --- Controllo Scrittura Campi Mediati ---
-        // L'ultima impostazione provata che era sintatticamente valida
+       
         writeControl    outputTime; 
-        // writeInterval   1; // Ignorato/Commentato perchè writeControl è outputTime
+       
     }
 
    
